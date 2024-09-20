@@ -1,26 +1,38 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { ThemeProvider, CssBaseline } from '@mui/material';
+import theme from './theme';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import Admin from './pages/Admin';
+import Header from './components/Header';
+import Footer from './components/Footer';
+import { GlobalStyles } from '@mui/material'; 
 
-function App() {
+const App: React.FC = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider theme={theme}>
+      <CssBaseline /> 
+      <GlobalStyles
+        styles={{
+          body: {
+            backgroundColor: '#E7E7E7', 
+            margin: 0,
+            padding: 0,
+            minHeight: '100vh', 
+            boxSizing: 'border-box',
+          },
+        }}
+      />
+      <Router>
+        <Header />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/admin" element={<Admin />} />
+        </Routes>
+        <Footer />
+      </Router>
+    </ThemeProvider>
   );
-}
+};
 
 export default App;
