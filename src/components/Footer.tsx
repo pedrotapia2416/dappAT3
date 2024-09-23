@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, IconButton } from '@mui/material';
 import TelegramIcon from '@mui/icons-material/Telegram';
 import LanguageIcon from '@mui/icons-material/Language';
-import PolygonIcon from '@mui/icons-material/ChangeHistory'; // No hay un ícono específico de Polygon, usaremos ChangeHistory como triángulo
+import PolygonIcon from '@mui/icons-material/ChangeHistory';
 
 const Footer: React.FC = () => {
   return (
@@ -10,14 +10,14 @@ const Footer: React.FC = () => {
       component="footer"
       sx={{
         display: 'flex',
+        flexDirection: { xs: 'row', md: 'row' }, 
         justifyContent: 'space-between',
         alignItems: 'center',
-        height: '100px',
+        height: 'auto', 
         width: '100%',
-        padding: '0 20px',
+        padding: { xs: '20px', md: '0 20px' }, 
         position: 'absolute',
         bottom: 0,
-        paddingLeft: '200px'
       }}
     >
       {/* Primer cuadrante: Íconos */}
@@ -26,24 +26,24 @@ const Footer: React.FC = () => {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          flex: 1,
           background: 'white',
-          marginTop: '-50px',
+          marginTop: { xs: '10px', md: '-200px' },
           padding: '20px',
           borderRadius: '50px',
-          boxShadow:'6px 5px 15px -5px',
+          boxShadow: '6px 5px 15px -5px',
+          flexDirection: { xs: 'row', md: 'row' }, 
         }}
       >
         <IconButton
           href="https://t.me/atomico3"
           target="_blank"
           sx={{
-            width: '60px',
-            height: '60px',
-            background:'linear-gradient(45deg, #004AAD, #CB6CE6)', 
+            width: { xs: '50px', md: '60px' }, 
+            height: { xs: '50px', md: '60px' },
+            background: 'linear-gradient(45deg, #004AAD, #CB6CE6)',
             borderRadius: '50%',
-            marginRight: '10px',
-            color: '#fff', 
+            margin: { xs: '10px 0', md: '0 10px' }, 
+            color: '#fff',
           }}
         >
           <TelegramIcon />
@@ -53,12 +53,12 @@ const Footer: React.FC = () => {
           href="https://polygonscan.com/address/0x22a79a08ddb74a9f1a4ebe5da75300ad9f1aed76"
           target="_blank"
           sx={{
-            width: '60px',
-            height: '60px',
-            background:'linear-gradient(45deg, #004AAD, #CB6CE6)', 
+            width: { xs: '50px', md: '60px' },
+            height: { xs: '50px', md: '60px' },
+            background: 'linear-gradient(45deg, #004AAD, #CB6CE6)',
             borderRadius: '50%',
-            marginRight: '10px',
-            color: '#fff',        
+            margin: { xs: '10px 0', md: '0 10px' },
+            color: '#fff',
           }}
         >
           <PolygonIcon />
@@ -68,11 +68,12 @@ const Footer: React.FC = () => {
           href="https://atomico3.io/"
           target="_blank"
           sx={{
-            width: '60px',
-            height: '60px',
-            background:'linear-gradient(45deg, #004AAD, #CB6CE6)', 
+            width: { xs: '50px', md: '60px' },
+            height: { xs: '50px', md: '60px' },
+            background: 'linear-gradient(45deg, #004AAD, #CB6CE6)',
             borderRadius: '50%',
-            color: '#fff', 
+            margin: { xs: '10px 0', md: '0 10px' },
+            color: '#fff',
           }}
         >
           <LanguageIcon />
@@ -80,12 +81,24 @@ const Footer: React.FC = () => {
       </Box>
 
       {/* Segundo cuadrante */}
-      <Box sx={{ flex: 1, textAlign: 'center' }}>
+      <Box
+        sx={{
+          flex: 1,
+          textAlign: 'center',
+          display: { xs: 'none', md: 'block' }, 
+        }}
+      >
         {/* Puedes agregar contenido aquí en el futuro */}
       </Box>
 
       {/* Tercer cuadrante */}
-      <Box sx={{ flex: 1, textAlign: 'right' }}>
+      <Box
+        sx={{
+          flex: 1,
+          textAlign: { xs: 'center', md: 'right' }, 
+          mt: { xs: '20px', md: 0 }, 
+        }}
+      >
         {/* Puedes agregar contenido aquí en el futuro */}
       </Box>
     </Box>

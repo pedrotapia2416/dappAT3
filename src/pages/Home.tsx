@@ -18,11 +18,12 @@ const Home: React.FC<HomeProps> = ({ account, setAccount }) => {
     <Box
       sx={{
         display: 'flex',
+        flexDirection: { xs: 'column', md: 'row' },
         justifyContent: 'left',
         alignItems: 'center',
-        minHeight: '80vh',
-        margin: 2,
-        borderRadius: '100px',
+        minHeight: { xs: '100vh', md: '80vh' }, 
+        margin: { xs: -10, md: 2 },
+        borderRadius: { xs: '0px', md: '100px' },
         padding: '20px',
         backgroundImage: `url(${linesImage}), linear-gradient(45deg, #004AAD, #000024)`,
         backgroundSize: 'cover, 100% 200%',
@@ -42,6 +43,7 @@ const Home: React.FC<HomeProps> = ({ account, setAccount }) => {
         },
       }}
     >
+      {/* Lado izquierdo: Imagen/logo */}
       <Box
         sx={{
           flex: 1,
@@ -54,23 +56,25 @@ const Home: React.FC<HomeProps> = ({ account, setAccount }) => {
           src={logo}
           alt="Logo"
           style={{
-            width: '500px',
-            height: '500px',
+            maxWidth: '50%', 
+            height: 'auto',
             objectFit: 'contain',
             animation: 'rotateLogo 5s ease-in-out infinite',
+           
           }}
         />
       </Box>
 
-      {/* Lado derecho*/}
+      {/* Lado derecho: Contenido */}
       <Box
         sx={{
-          flex: 1, 
+          flex: 1,
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'flex-start',
           alignItems: 'center',
-          textAlign:'left',
+          textAlign: 'left',
+          mt: { xs: 4, md: 0 }, // Margen superior en pantallas pequeñas
         }}
       >
         {!account && <ConnectWallet onConnect={setAccount} />}
@@ -85,10 +89,10 @@ const Home: React.FC<HomeProps> = ({ account, setAccount }) => {
               alignItems: 'left',
             }}
           >
-            <StakeForm />   
-            <UnstakeForm />
+            <StakeForm />
+            {/* <UnstakeForm /> */}
             <GetStakeForm />
-            <PeerToPeer />
+            {/* <PeerToPeer /> */}
           </Box>
         )}
       </Box>
