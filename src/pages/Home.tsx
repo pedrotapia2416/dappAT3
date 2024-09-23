@@ -1,18 +1,20 @@
-import React, { useState } from 'react';
-import { Box, Button } from '@mui/material';
+import React from 'react';
+import { Box } from '@mui/material';
 import ConnectWallet from '../components/ConnectWallet';
 import StakeForm from '../components/StakeForm';
 import UnstakeForm from '../components/UnstakeForm';
 import GetStakeForm from '../components/GetStakeForm';
+import PeerToPeer from '../components/peertopeer';
 import linesImage from '../assets/images/lineas.png';
 import logo from '../assets/images/logo.png';
-import PeerToPeer from '../components/peertopeer';
- 
-const Home: React.FC = () => {
-  const [account, setAccount] = useState<string | null>(null);
 
+interface HomeProps {
+  account: string | null;
+  setAccount: (account: string | null) => void;
+}
+
+const Home: React.FC<HomeProps> = ({ account, setAccount }) => {
   return (
-    
     <Box
       sx={{
         display: 'flex',
@@ -55,7 +57,7 @@ const Home: React.FC = () => {
             width: '500px',
             height: '500px',
             objectFit: 'contain',
-            animation: 'rotateLogo 5s ease-in-out infinite', 
+            animation: 'rotateLogo 5s ease-in-out infinite',
           }}
         />
       </Box>
@@ -69,7 +71,6 @@ const Home: React.FC = () => {
           justifyContent: 'flex-start',
           alignItems: 'center',
           textAlign:'left',
-
         }}
       >
         {!account && <ConnectWallet onConnect={setAccount} />}
@@ -82,21 +83,16 @@ const Home: React.FC = () => {
               gap: 2, 
               justifyContent: 'flex-start',
               alignItems: 'left',
-
             }}
           >
-           
-              <StakeForm />   
-              <UnstakeForm />
-              <GetStakeForm />
-              <PeerToPeer />
-
-              
+            <StakeForm />   
+            <UnstakeForm />
+            <GetStakeForm />
+            <PeerToPeer />
           </Box>
         )}
       </Box>
 
-    
       <style>
         {`
           @keyframes rotateLogo {

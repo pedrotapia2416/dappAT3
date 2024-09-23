@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import theme from './theme';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
@@ -7,26 +7,33 @@ import Admin from './pages/Admin';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import { GlobalStyles } from '@mui/material'; 
+import StakingPlus from './pages/StakingPlus';
 
 const App: React.FC = () => {
+  // Estado centralizado para la cuenta de la wallet
+  const [account, setAccount] = useState<string | null>(null);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline /> 
       <GlobalStyles
         styles={{
           body: {
-            backgroundColor: '#E7E7E7', 
+            backgroundColor: '#E7E7E7',
             margin: 0,
             padding: 0,
-            minHeight: '100vh', 
+            minHeight: '100vh',
             boxSizing: 'border-box',
           },
         }}
       />
       <Router>
-        <Header />
+        {/* Pasar el estado y el setter al Header */}
+        <Header account={account} setAccount={setAccount} />
         <Routes>
-          <Route path="/" element={<Home />} />
+          {/* Pasar el estado y el setter al Home */}
+          <Route path="/stakingplus" element={<StakingPlus />} /> 
+          <Route path="/" element={<Home account={account} setAccount={setAccount} />} />
           <Route path="/admin" element={<Admin />} />
         </Routes>
         <Footer />
