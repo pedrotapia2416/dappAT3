@@ -44,6 +44,7 @@ const AlertModal: React.FC<AlertModalProps> = ({ open, severity, message, onClos
           padding: '20px',
           borderRadius: '12px',
           maxWidth: '60%',
+          width: '500px',
           margin: 'auto',
           mt: '10%',
           borderTop: `8px solid ${color}`, 
