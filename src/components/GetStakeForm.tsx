@@ -21,16 +21,16 @@ const GetStakeForm: React.FC = () => {
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertSeverity, setAlertSeverity] = useState<'success' | 'error' | 'warning' | 'info'>('info'); 
-  const [loading, setLoading] = useState(false); // Para mostrar el loader
+  const [loading, setLoading] = useState(false); 
 
   const [currentPage, setCurrentPage] = useState(1);
-  const stakesPerPage = 5; // Mostrar 5 stakes por página
+  const stakesPerPage = 5; 
 
   const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS;
   const contractABI = JSON.parse(process.env.REACT_APP_CONTRACT_ABI || '[]');
 
   const handleGetStakes = async () => {
-    setLoading(true); // Iniciar el loader
+    setLoading(true); 
     try {
       if (window.ethereum) {
         const web3 = new Web3(window.ethereum);
@@ -66,7 +66,7 @@ const GetStakeForm: React.FC = () => {
       setAlertSeverity('error');
       setAlertOpen(true); 
     } finally {
-      setLoading(false); // Finalizar el loader
+      setLoading(false);
     }
   };
 
@@ -74,15 +74,13 @@ const GetStakeForm: React.FC = () => {
     setOpen(false);
     setUserAddress('');  
     setStakes([]);      
-    setCurrentPage(1);  // Resetear la página actual
+    setCurrentPage(1);  
   };
 
-  // Calcular los stakes que se muestran en la página actual
   const indexOfLastStake = currentPage * stakesPerPage;
   const indexOfFirstStake = indexOfLastStake - stakesPerPage;
   const currentStakes = stakes.slice(indexOfFirstStake, indexOfLastStake);
 
-  // Cambiar página
   const handleChangePage = (event: React.ChangeEvent<unknown>, page: number) => {
     setCurrentPage(page);
   };
@@ -102,7 +100,6 @@ const GetStakeForm: React.FC = () => {
         Consultar Stakes
       </Button>
 
-      {/* Modal para consultar stakes */}
       <Modal open={open} onClose={handleCloseModal}>
         <Box sx={{ p: 4, backgroundColor: 'white', borderRadius: '8px', maxWidth: '800px', margin: 'auto', mt: 5 }}>
           <Typography variant="h6">Consultar Stakes</Typography>
@@ -117,7 +114,6 @@ const GetStakeForm: React.FC = () => {
             Obtener Stakes
           </Button>
 
-          {/* Mostrar el loader */}
           {loading && (
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
               <CircularProgress />
@@ -128,7 +124,6 @@ const GetStakeForm: React.FC = () => {
             <Box sx={{ mt: 4 }}>
               <Typography variant="h6">Resultados de los Stakes:</Typography>
 
-              {/* Tabla de resultados de los stakes */}
               <Table>
                 <TableHead>
                   <TableRow>
@@ -152,7 +147,6 @@ const GetStakeForm: React.FC = () => {
                 </TableBody>
               </Table>
 
-              {/* Paginación */}
               <Pagination
                 count={Math.ceil(stakes.length / stakesPerPage)}
                 page={currentPage}
@@ -164,7 +158,6 @@ const GetStakeForm: React.FC = () => {
         </Box>
       </Modal>
 
-      {/* AlertModal para mostrar mensajes de error o éxito */}
       <AlertModal
         open={alertOpen}
         severity={alertSeverity}

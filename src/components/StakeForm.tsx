@@ -128,13 +128,14 @@ const StakeForm: React.FC = () => {
           gasPrice: increasedGasPrice.toString(),
         })
         .on('receipt', (receipt) => {
+          const transactionHash = receipt.transactionHash;
           setAlertSeverity('success');
           setAlertMessage(`Staking realizado con éxito.\nHash de la transacción: ${receipt.transactionHash}.\nTe llegará un email con los detalles.`);
           setAlertOpen(true);
           setOpen(false);
           resetForm();
           setApproving(false);
-          sendEmail();
+          sendEmail(transactionHash);
         })
         .on('error', (error) => {
           console.error("Error realizando staking:", error);
@@ -152,14 +153,14 @@ const StakeForm: React.FC = () => {
     }
   };
 
-   // Enviar correo electrónico usando emailjs
-   const sendEmail = () => {
+   const sendEmail = (transactionHash: string) => {
     const dataStaking = {
       name: name,
       email: email,
       amount: amount,
       days: days,
       document: document,
+      transactionHash: transactionHash
     };
 
     emailjs.send('service_mn0qbtj', 'template_s7tm63d', dataStaking, 'uJWGoBXmCBWYLpGfC')
