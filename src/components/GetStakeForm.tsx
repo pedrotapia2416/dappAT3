@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Button, TextField, Modal, Box, Typography, Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
+import { Button, TextField, Modal, Box, Typography, Table, TableHead, TableRow, TableCell, TableBody, CircularProgress, Pagination } from '@mui/material';
 import Web3 from 'web3';
-import WalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import AlertModal from './AlertModal'; 
 
 type Stake = {
@@ -22,11 +21,16 @@ const GetStakeForm: React.FC = () => {
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertSeverity, setAlertSeverity] = useState<'success' | 'error' | 'warning' | 'info'>('info'); 
+  const [loading, setLoading] = useState(false); // Para mostrar el loader
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const stakesPerPage = 5; // Mostrar 5 stakes por página
 
   const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS;
   const contractABI = JSON.parse(process.env.REACT_APP_CONTRACT_ABI || '[]');
 
   const handleGetStakes = async () => {
+    setLoading(true); // Iniciar el loader
     try {
       if (window.ethereum) {
         const web3 = new Web3(window.ethereum);
@@ -61,9 +65,27 @@ const GetStakeForm: React.FC = () => {
       }
       setAlertSeverity('error');
       setAlertOpen(true); 
+    } finally {
+      setLoading(false); // Finalizar el loader
     }
   };
-  
+
+  const handleCloseModal = () => {
+    setOpen(false);
+    setUserAddress('');  
+    setStakes([]);      
+    setCurrentPage(1);  // Resetear la página actual
+  };
+
+  // Calcular los stakes que se muestran en la página actual
+  const indexOfLastStake = currentPage * stakesPerPage;
+  const indexOfFirstStake = indexOfLastStake - stakesPerPage;
+  const currentStakes = stakes.slice(indexOfFirstStake, indexOfLastStake);
+
+  // Cambiar página
+  const handleChangePage = (event: React.ChangeEvent<unknown>, page: number) => {
+    setCurrentPage(page);
+  };
 
   return (
     <>
@@ -81,7 +103,7 @@ const GetStakeForm: React.FC = () => {
       </Button>
 
       {/* Modal para consultar stakes */}
-      <Modal open={open} onClose={() => setOpen(false)}>
+      <Modal open={open} onClose={handleCloseModal}>
         <Box sx={{ p: 4, backgroundColor: 'white', borderRadius: '8px', maxWidth: '800px', margin: 'auto', mt: 5 }}>
           <Typography variant="h6">Consultar Stakes</Typography>
           <TextField
@@ -91,11 +113,18 @@ const GetStakeForm: React.FC = () => {
             onChange={(e) => setUserAddress(e.target.value)}
             margin="normal"
           />
-          <Button variant="contained" onClick={handleGetStakes} sx={{ mt: 2 }}>
+          <Button variant="contained" onClick={handleGetStakes} sx={{ mt: 2 }} disabled={loading}>
             Obtener Stakes
           </Button>
 
-          {stakes.length > 0 && (
+          {/* Mostrar el loader */}
+          {loading && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+              <CircularProgress />
+            </Box>
+          )}
+
+          {stakes.length > 0 && !loading && (
             <Box sx={{ mt: 4 }}>
               <Typography variant="h6">Resultados de los Stakes:</Typography>
 
@@ -111,7 +140,7 @@ const GetStakeForm: React.FC = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {stakes.map((stake, index) => (
+                  {currentStakes.map((stake, index) => (
                     <TableRow key={index}>
                       <TableCell>{stake.amount} Tokens</TableCell>
                       <TableCell>{stake.stakingDays}</TableCell>
@@ -122,6 +151,14 @@ const GetStakeForm: React.FC = () => {
                   ))}
                 </TableBody>
               </Table>
+
+              {/* Paginación */}
+              <Pagination
+                count={Math.ceil(stakes.length / stakesPerPage)}
+                page={currentPage}
+                onChange={handleChangePage}
+                sx={{ mt: 2 }}
+              />
             </Box>
           )}
         </Box>

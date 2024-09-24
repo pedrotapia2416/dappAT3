@@ -9,7 +9,7 @@ const Footer: React.FC = () => {
     <Box
       component="footer"
       sx={{
-        display: 'flex',
+        display: { xs: 'contents', md: 'flex' },
         flexDirection: { xs: 'row', md: 'row' }, 
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -50,7 +50,7 @@ const Footer: React.FC = () => {
         </IconButton>
 
         <IconButton
-          href="https://polygonscan.com/address/0x22a79a08ddb74a9f1a4ebe5da75300ad9f1aed76"
+          href="https://polygonscan.com/address/0xAAF3AC68Bf80d995d7793a401653713A05a67B08"
           target="_blank"
           sx={{
             width: { xs: '50px', md: '60px' },

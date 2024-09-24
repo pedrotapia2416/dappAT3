@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import ConnectWallet from '../components/ConnectWallet';
 import StakeForm from '../components/StakeForm';
 import UnstakeForm from '../components/UnstakeForm';
@@ -93,6 +93,17 @@ const Home: React.FC<HomeProps> = ({ account, setAccount }) => {
             {/* <UnstakeForm /> */}
             <GetStakeForm />
             {/* <PeerToPeer /> */}
+            
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{ mt: 3 }}
+              href="https://quickswap.exchange/#/swap?swapIndex=0&currency0=ETH&currency1=0x22a79a08ddb74A9F1A4eBE5da75300Ad9f1AED76"
+              target="_blank" 
+              rel="noopener noreferrer"
+            >
+              Comprar AT3 en QuickSwap
+            </Button>
           </Box>
         )}
       </Box>

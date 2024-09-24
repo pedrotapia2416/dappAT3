@@ -134,6 +134,27 @@ const Header: React.FC<HeaderProps> = ({ account, setAccount }) => {
                   <AttachMoneyIcon sx={{ mr: 1, color: '#fff', background: '#2EA480', padding: '8px', borderRadius: '20px', fontSize: '40px' }} />
                   <AT3ToUSDTPrice />
                 </Box>
+                {account ? (
+            <Box display="flex" alignItems="center">
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  backgroundColor: '#fff',
+                  color: '#3B3737',
+                  padding: '12px 24px',
+                  borderRadius: '30px',
+                  mt: 2,
+                  boxShadow: '6px 5px 15px -5px',
+                }}
+              >
+                <WalletIcon sx={{ mr: 1, color: '#fff', background: 'linear-gradient(45deg, #004AAD, #CB6CE6)', padding: '8px', borderRadius: '20px', fontSize: '40px' }} />
+                <Typography variant="body1">{account}</Typography>
+              </Box>
+            </Box>
+          ) : (
+            ''
+          )}
               </>
             )}
           </Box>

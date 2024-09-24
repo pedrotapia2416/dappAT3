@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { Tooltip, IconButton, Button, TextField, Modal, Box, MenuItem, Select } from '@mui/material';
 import Web3 from 'web3';
-import WalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import AlertModal from './AlertModal'; 
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import emailjs from 'emailjs-com';
 
 const StakeForm: React.FC = () => {
   const [amount, setAmount] = useState('');
@@ -12,17 +11,12 @@ const StakeForm: React.FC = () => {
   const [email, setEmail] = useState('');
   const [document, setDocument] = useState('');
   const [open, setOpen] = useState(false);
+  const [approving, setApproving] = useState(false);
 
-  // Estados para el AlertModal
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertSeverity, setAlertSeverity] = useState<'success' | 'error' | 'warning' | 'info'>('info');
 
-  // Estados para manejar la aprobación y staking por separado
-  const [canStake, setCanStake] = useState(false); 
-  const [approving, setApproving] = useState(false);
-
-  // Variables del contrato
   const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS; 
   const contractABI = JSON.parse(process.env.REACT_APP_CONTRACT_ABI || '[]'); 
   const tokenAddress = process.env.REACT_APP_CONTRACT_TOKEN; 
@@ -33,27 +27,25 @@ const StakeForm: React.FC = () => {
     setName('');
     setEmail('');
     setDocument('');
-    setCanStake(false); 
   };
 
-  //Aprobación del contrato
-  const handleApprove = async () => {
+  const handleTransaction = async () => {
     if (!amount || !name || !email || !document) {
       setAlertSeverity('warning');
       setAlertMessage("Todos los campos son obligatorios");
       setAlertOpen(true);
       return;
     }
-  
+
     try {
       if (window.ethereum) {
         const web3 = new Web3(window.ethereum);
         await window.ethereum.request({ method: 'eth_requestAccounts' });
-  
+
         const accounts = await web3.eth.getAccounts();
         const userAddress = accounts[0];
         const amountInWei = web3.utils.toWei(amount, 'ether');
-  
+
         const tokenContract = new web3.eth.Contract([
           {
             "constant": true,
@@ -67,43 +59,39 @@ const StakeForm: React.FC = () => {
             "type": "function"
           }
         ], tokenAddress);
-  
-        setApproving(true); 
-        setCanStake(true);
+
+        setApproving(true);
         setAlertSeverity('info');
-        setAlertMessage("Este proceso puede demorar unos minutos. Recomendamos verificar la aprobación en MetaMask.");
+        setAlertMessage("Validando operación...");
         setAlertOpen(true);
-  
+
+        const gasPrice = await web3.eth.getGasPrice();
+        const increasedGasPrice = BigInt(gasPrice) * BigInt(125) / BigInt(100);
+
         const gasEstimate = await tokenContract.methods
           .approve(contractAddress, amountInWei)
           .estimateGas({ from: userAddress });
-  
-        const gasEstimateString = gasEstimate.toString();
-  
-        // Aquí manejamos el error de la transacción con `.catch()`
-        tokenContract.methods
+
+        const increasedGasEstimate = gasEstimate * BigInt(120) / BigInt(100);
+        await tokenContract.methods
           .approve(contractAddress, amountInWei)
-          .send({ from: userAddress, gas: gasEstimateString })
-          .on('transactionHash', (hash) => {
-            setAlertSeverity('info');
-            setAlertMessage("Transacción enviada. Puedes verificarla en MetaMask.");
-            setAlertOpen(true);
+          .send({
+            from: userAddress,
+            gas: increasedGasEstimate.toString(),
+            gasPrice: increasedGasPrice.toString(),
           })
-          .on('receipt', (receipt) => {
+          .on('receipt', async () => {
             setAlertSeverity('success');
-            setAlertMessage("Tokens aprobados. Ahora puedes realizar el stake.");
+            setAlertMessage("Operación Validada. Realizando staking...");
             setAlertOpen(true);
-            setApproving(false);
+
+            // Ahora realizamos el staking
+            await handleStake(userAddress, amountInWei, increasedGasPrice);
           })
           .on('error', (error) => {
-            // Este error es capturado en la promesa y no se propaga
-            if (error.message.includes("User denied transaction signature")) {
-              setAlertSeverity('error');
-              setAlertMessage("Transacción denegada. Has cancelado la firma en MetaMask.");
-            } else {
-              setAlertSeverity('error');
-              setAlertMessage("Ocurrió un error al realizar la transacción. Inténtalo de nuevo.");
-            }
+            console.error("Error en la validación:", error);
+            setAlertSeverity('error');
+            setAlertMessage("Error en la validación. Inténtalo de nuevo.");
             setAlertOpen(true);
             setApproving(false);
           });
@@ -113,65 +101,75 @@ const StakeForm: React.FC = () => {
         setAlertOpen(true);
       }
     } catch (error) {
-      // Manejamos cualquier otro error fuera del flujo de MetaMask
       console.error("Error capturado:", error);
       setAlertSeverity('error');
-      setAlertMessage("Ocurrió un error. Inténtalo de nuevo.");
+      setAlertMessage("Error inesperado. Inténtalo de nuevo.");
       setAlertOpen(true);
       setApproving(false);
     }
   };
 
-  // Realizar el staking después de la aprobación
-  const handleStake = async () => {
-    if (!canStake) {
-      setAlertSeverity('warning');
-      setAlertMessage("Primero debes aprobar la transacción antes de realizar el stake.");
-      setAlertOpen(true);
-      return;
-    }
-  
+  const handleStake = async (userAddress: string, amountInWei: string, increasedGasPrice: bigint) => {
     try {
-      if (window.ethereum) {
-        const web3 = new Web3(window.ethereum);
-        await window.ethereum.request({ method: 'eth_requestAccounts' });
-  
-        const accounts = await web3.eth.getAccounts();
-        const userAddress = accounts[0];
-        const amountInWei = web3.utils.toWei(amount, 'ether');
-  
-        const stakingContract = new web3.eth.Contract(contractABI, contractAddress);
-  
-        // Intentar estimar manualmente el gas antes de enviar la transacción
-        const gasEstimate = await stakingContract.methods
-          .stake(amountInWei, days, name, email, document)
-          .estimateGas({ from: userAddress });
-  
-        console.log("Estimación de gas:", gasEstimate);
-  
-        // Convertir el gas estimate a string
-        const gasEstimateString = gasEstimate.toString();
-  
-        // Ahora enviar la transacción con la estimación de gas
-        const tx = await stakingContract.methods
-          .stake(amountInWei, days, name, email, document)
-          .send({ from: userAddress, gas: gasEstimateString });
-  
-        console.log("Transacción de Staking completada:", tx);
-        setAlertSeverity('success');
-        setAlertMessage("Staking realizado con éxito");
-        setAlertOpen(true);
-        setOpen(false);
-        setCanStake(false); 
-      }
+      const web3 = new Web3(window.ethereum);
+      const stakingContract = new web3.eth.Contract(contractABI, contractAddress);
+
+      const gasEstimate = await stakingContract.methods
+        .stake(amountInWei, days, name, email, document)
+        .estimateGas({ from: userAddress });
+
+      const increasedGasEstimate = gasEstimate * BigInt(120) / BigInt(100);
+
+      await stakingContract.methods
+        .stake(amountInWei, days, name, email, document)
+        .send({
+          from: userAddress,
+          gas: increasedGasEstimate.toString(),
+          gasPrice: increasedGasPrice.toString(),
+        })
+        .on('receipt', (receipt) => {
+          setAlertSeverity('success');
+          setAlertMessage(`Staking realizado con éxito.\nHash de la transacción: ${receipt.transactionHash}.\nTe llegará un email con los detalles.`);
+          setAlertOpen(true);
+          setOpen(false);
+          resetForm();
+          setApproving(false);
+          sendEmail();
+        })
+        .on('error', (error) => {
+          console.error("Error realizando staking:", error);
+          setAlertSeverity('error');
+          setAlertMessage("Error en el staking. Inténtalo de nuevo.");
+          setAlertOpen(true);
+          setApproving(false);
+        });
     } catch (error) {
-      console.error("Error realizando staking:", error);
+      console.error("Error capturado en staking:", error);
       setAlertSeverity('error');
-      setAlertMessage("Hubo un error al realizar el staking. Revisa los datos y vuelve a intentarlo.");
+      setAlertMessage("Error inesperado durante el staking.");
       setAlertOpen(true);
+      setApproving(false);
     }
   };
-  
+
+   // Enviar correo electrónico usando emailjs
+   const sendEmail = () => {
+    const dataStaking = {
+      name: name,
+      email: email,
+      amount: amount,
+      days: days,
+      document: document,
+    };
+
+    emailjs.send('service_mn0qbtj', 'template_s7tm63d', dataStaking, 'uJWGoBXmCBWYLpGfC')
+      .then((response) => {
+        console.log('Email enviado correctamente:', response.status, response.text);
+      })
+      .catch((error) => {
+        console.error('Error al enviar el email:', error);
+      });
+  };
 
   return (
     <>
@@ -193,7 +191,6 @@ const StakeForm: React.FC = () => {
       <Modal
         open={open}
         onClose={(event, reason) => {
-          // Solo cerramos el modal si el evento es provocado por el botón de cierre
           if (reason !== 'backdropClick') {
             setOpen(false);
             resetForm();
@@ -241,31 +238,20 @@ const StakeForm: React.FC = () => {
             margin="normal"
           />
 
- 
-          <Button variant="text" onClick={handleApprove} sx={{ mt: 2 }} >
-            {approving ? 'Solicitar permiso de staking' : 'Solicitar permiso de staking'}
-          </Button>
-          <Tooltip title="Previo al staking es necesario realizar una aprobación previa de transferencia entre los SmartContracts">
-            <IconButton>
-              <HelpOutlineIcon />
-            </IconButton>
-          </Tooltip>
-          <Button variant="contained" onClick={handleStake} sx={{ mt: 2 }} disabled={!canStake}>
-            Realizar Stake
+          <Button variant="contained" onClick={handleTransaction} sx={{ mt: 2 }} disabled={approving}>
+            {approving ? 'Procesando...' : 'Staking'}
           </Button>
 
           <Button
-              variant="outlined"
-              sx={{ mt: 2, ml:5 }}
-              onClick={() => {
-                setOpen(false);
-                resetForm();
-              }}
-            >
-              Cerrar
+            variant="text"
+            sx={{ mt: 2, ml: 15 }}
+            onClick={() => {
+              setOpen(false);
+              resetForm();
+            }}
+          >
+            Cerrar
           </Button>
-
-
         </Box>
       </Modal>
 

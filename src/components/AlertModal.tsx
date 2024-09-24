@@ -43,10 +43,10 @@ const AlertModal: React.FC<AlertModalProps> = ({ open, severity, message, onClos
           backgroundColor: 'white',
           padding: '20px',
           borderRadius: '12px',
-          maxWidth: '500px',
+          maxWidth: '60%',
           margin: 'auto',
           mt: '10%',
-          borderTop: `8px solid ${color}`, // Añadimos el borde superior del color de la alerta
+          borderTop: `8px solid ${color}`, 
           boxShadow: '0px 3px 15px rgba(0,0,0,0.2)',
         }}
       >
