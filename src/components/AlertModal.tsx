@@ -57,11 +57,17 @@ const AlertModal: React.FC<AlertModalProps> = ({ open, severity, message, onClos
           margin: 'auto',
           mt: '10%',
           borderTop: `8px solid ${color}`, 
-          boxShadow: '0px 3px 15px rgba(0,0,0,0.2)',
         }}
       >
         <IconButton sx={{ color, fontSize: '160px' }}>{icon}</IconButton>
-        <Typography variant="h6" sx={{ mt: 2 }}>
+        <Typography 
+          variant="h6" 
+          sx={{ 
+            mt: 2, 
+            wordWrap: 'break-word', 
+            maxWidth: '100%' 
+          }}
+        >
           {message}
         </Typography>
         <Button 
