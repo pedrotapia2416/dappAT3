@@ -16,6 +16,7 @@ const StakeForm: React.FC = () => {
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertSeverity, setAlertSeverity] = useState<'success' | 'error' | 'warning' | 'info'>('info');
+  const [alertClosable, setAlertClosable] = useState(false);
 
   const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS; 
   const contractABI = JSON.parse(process.env.REACT_APP_CONTRACT_ABI || '[]'); 
@@ -62,8 +63,9 @@ const StakeForm: React.FC = () => {
 
         setApproving(true);
         setAlertSeverity('info');
-        setAlertMessage("Validando operación...");
+        setAlertMessage("Validando operación...\nDebe aprobar la operación en Metamask");
         setAlertOpen(true);
+        setAlertClosable(false);
 
         const gasPrice = await web3.eth.getGasPrice();
         const increasedGasPrice = BigInt(gasPrice) * BigInt(125) / BigInt(100);
@@ -82,8 +84,9 @@ const StakeForm: React.FC = () => {
           })
           .on('receipt', async () => {
             setAlertSeverity('success');
-            setAlertMessage("Operación Validada. Realizando staking...");
+            setAlertMessage("Operación Validada.\nRealizando staking... .\nConfirmar la operación en Metamask");
             setAlertOpen(true);
+            setAlertClosable(false);
 
             // Ahora realizamos el staking
             await handleStake(userAddress, amountInWei, increasedGasPrice);
@@ -93,12 +96,14 @@ const StakeForm: React.FC = () => {
             setAlertSeverity('error');
             setAlertMessage("Error en la validación. Inténtalo de nuevo.");
             setAlertOpen(true);
+            setAlertClosable(true);
             setApproving(false);
           });
       } else {
         setAlertSeverity('error');
         setAlertMessage("MetaMask no está instalado. Por favor, instálalo para continuar.");
         setAlertOpen(true);
+        setAlertClosable(true);
       }
     } catch (error) {
       console.error("Error capturado:", error);
@@ -132,6 +137,7 @@ const StakeForm: React.FC = () => {
           setAlertSeverity('success');
           setAlertMessage(`Staking realizado con éxito.\nHash de la transacción: ${receipt.transactionHash}.\nTe llegará un email con los detalles.`);
           setAlertOpen(true);
+          setAlertClosable(true);
           setOpen(false);
           resetForm();
           setApproving(false);
@@ -142,6 +148,7 @@ const StakeForm: React.FC = () => {
           setAlertSeverity('error');
           setAlertMessage("Error en el staking. Inténtalo de nuevo.");
           setAlertOpen(true);
+          setAlertClosable(true);
           setApproving(false);
         });
     } catch (error) {
@@ -149,6 +156,7 @@ const StakeForm: React.FC = () => {
       setAlertSeverity('error');
       setAlertMessage("Error inesperado durante el staking.");
       setAlertOpen(true);
+      setAlertClosable(false);
       setApproving(false);
     }
   };
@@ -260,8 +268,10 @@ const StakeForm: React.FC = () => {
         open={alertOpen}
         severity={alertSeverity}
         message={alertMessage}
-        onClose={() => setAlertOpen(false)}
+        onClose={() => setAlertOpen(false)} // Cerrar el modal al hacer clic en "Cerrar"
+        disableEscapeKeyDown={!alertClosable} // Controlar si se permite o no el cierre con Escape
       />
+
     </>
   );
 };

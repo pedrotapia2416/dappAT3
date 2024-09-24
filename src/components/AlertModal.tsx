@@ -11,9 +11,10 @@ interface AlertModalProps {
   severity: 'success' | 'error' | 'warning' | 'info';
   message: string;
   onClose: () => void;
+  disableEscapeKeyDown?: boolean; // Esta propiedad ya es parte del Modal
 }
 
-const AlertModal: React.FC<AlertModalProps> = ({ open, severity, message, onClose }) => {
+const AlertModal: React.FC<AlertModalProps> = ({ open, severity, message, onClose, disableEscapeKeyDown = false }) => {
   const getColorAndIcon = () => {
     switch (severity) {
       case 'success':
@@ -32,7 +33,15 @@ const AlertModal: React.FC<AlertModalProps> = ({ open, severity, message, onClos
   const { color, icon } = getColorAndIcon();
 
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal
+      open={open}
+      onClose={(event, reason) => {
+        if (reason !== 'backdropClick' && reason !== 'escapeKeyDown') {
+          onClose();
+        }
+      }}
+      disableEscapeKeyDown={disableEscapeKeyDown} 
+    >
       <Box
         sx={{
           display: 'flex',
