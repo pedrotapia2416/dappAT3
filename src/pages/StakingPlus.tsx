@@ -78,6 +78,7 @@ const StakingPlus: React.FC = () => {
   };
 
   return (
+    
     <Box
       sx={{
         display: 'flex',
@@ -105,6 +106,7 @@ const StakingPlus: React.FC = () => {
         },
       }}
     >
+      
       <Grid container sx={{ maxWidth: '1200px', boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)', borderRadius: '8px', backgroundColor: '#fff' }}>
       
         {/* Columna izquierda con la imagen */}
@@ -143,6 +145,18 @@ const StakingPlus: React.FC = () => {
               justifyContent: 'center',
             }}
           >
+            <Box sx={{display:'flex'}}>
+           
+              <Button
+                variant="contained"
+                color="secondary"
+                sx={{ mb: 2, }}
+                onClick={handleRedirectToHome}
+              >
+                Volver al inicio
+              </Button>
+              
+            </Box>
             <Typography variant="h4" sx={{ mb: 2, textAlign: 'center' }}>Staking Plus 5%</Typography>
             <form onSubmit={handleSubmit}>
               <Grid container spacing={2}>
@@ -287,31 +301,7 @@ const StakingPlus: React.FC = () => {
               marginBottom: '20px',
             }}
           />
-         <Box sx={{display:'flex'}}>
-         <Button
-            variant="contained"
-            sx={{ mb: 2 }}
-            onClick={handleRedirectToQuickswap}
-          >
-            Comprar AT3 en QuickSwap
-          </Button>
-          <Button
-            variant="contained"
-            color="secondary"
-            sx={{ mb: 2 }}
-            onClick={handleRedirectToHome}
-          >
-            Ir al Home
-          </Button>
-          <Button
-            variant="outlined"
-            color="secondary"
-            sx={{ mb: 2 }}
-            onClick={closeImageModal}
-          >
-            Cerrar
-          </Button>
-         </Box>
+         
 
 
           
