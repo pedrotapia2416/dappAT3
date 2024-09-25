@@ -74,7 +74,7 @@ const Home: React.FC<HomeProps> = ({ account, setAccount }) => {
           justifyContent: 'flex-start',
           alignItems: 'center',
           textAlign: 'left',
-          mt: { xs: 4, md: 0 }, // Margen superior en pantallas pequeñas
+          mt: { xs: 4, md: 0 }, 
         }}
       >
         {!account && <ConnectWallet onConnect={setAccount} />}
@@ -92,7 +92,7 @@ const Home: React.FC<HomeProps> = ({ account, setAccount }) => {
             <StakeForm />
             {/* <UnstakeForm /> */}
             <GetStakeForm />
-            {/* <PeerToPeer /> */}
+            <PeerToPeer />
             
             <Button
               variant="contained"
