@@ -7,6 +7,7 @@ import GetStakeForm from '../components/GetStakeForm';
 import PeerToPeer from '../components/peertopeer';
 import linesImage from '../assets/images/lineas.png';
 import logo from '../assets/images/logo.png';
+import BuyAT3 from '../components/buyAT3';
 
 interface HomeProps {
   account: string | null;
@@ -94,6 +95,7 @@ const Home: React.FC<HomeProps> = ({ account, setAccount }) => {
             <GetStakeForm />
             <PeerToPeer />
             
+            
             <Button
               variant="contained"
               color="primary"
@@ -104,6 +106,9 @@ const Home: React.FC<HomeProps> = ({ account, setAccount }) => {
             >
               Comprar AT3 en QuickSwap
             </Button>
+
+            <BuyAT3 />
+
           </Box>
         )}
       </Box>

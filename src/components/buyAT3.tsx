@@ -1,30 +1,29 @@
 import React, { useState } from 'react';
-import { Box, Button, Modal, Typography, MenuItem, Select, TextField } from '@mui/material';
+import { Box, Button, Modal, Typography, TextField } from '@mui/material';
 import Web3 from 'web3';
 import AlertModal from './AlertModal';
 import emailjs from 'emailjs-com';
 
-const PeerToPeer: React.FC = () => {
+const BuyAT3: React.FC = () => {
   const [open, setOpen] = useState(false);
-  const [cantidadAT3, setCantidadAT3] = useState(300);
+  const [cantidadAT3, setCantidadAT3] = useState(0); // Permitir modificar el importe
   const [nombre, setNombre] = useState('');
   const [dni, setDni] = useState('');
   const [email, setEmail] = useState('');
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertSeverity, setAlertSeverity] = useState<'success' | 'error' | 'warning' | 'info'>('info');
-  const [approving, setApproving] = useState(false); 
   const [transfering, setTransfering] = useState(false);
 
   const precioPorAT3 = 0.85;
   const totalUSDT = (cantidadAT3 * precioPorAT3).toFixed(2);
   const totalConAdicional = (cantidadAT3 * 1.75).toFixed(0);
-  
+
   const empresaWalletAddress = process.env.REACT_APP_WALLETADMIN_ADDRESS;  
   const usdtTokenAddress = process.env.REACT_APP_USDT_CONTRACTUSDT_ADDRESS; 
 
   const resetForm = () => {
-    setCantidadAT3(300);
+    setCantidadAT3(0); 
     setNombre('');
     setDni('');
     setEmail('');
@@ -37,17 +36,17 @@ const PeerToPeer: React.FC = () => {
       setAlertOpen(true);
       return;
     }
-  
+
     try {
       if (window.ethereum) {
         const web3 = new Web3(window.ethereum);
         await window.ethereum.request({ method: 'eth_requestAccounts' });
-  
+
         const accounts = await web3.eth.getAccounts();
         const userAddress = accounts[0];
-  
+
         const amountInUSDT = web3.utils.toWei(totalUSDT, 'mwei');
-  
+
         const usdtContract = new web3.eth.Contract([
           {
             "constant": false,
@@ -61,33 +60,32 @@ const PeerToPeer: React.FC = () => {
             "type": "function"
           }
         ], usdtTokenAddress);
-  
+
         setTransfering(true);
         setAlertSeverity('info');
         setAlertMessage('Transfiriendo USDT. Por favor, confirma en MetaMask.');
         setAlertOpen(true);
-  
+
         const gasEstimate = await usdtContract.methods
           .transfer(empresaWalletAddress, amountInUSDT)
           .estimateGas({ from: userAddress });
-  
-        const increasedGasEstimate = (gasEstimate * BigInt(120)) / BigInt(100);
+
+        const increasedGasEstimate = (BigInt(gasEstimate) * BigInt(120)) / BigInt(100);
 
         const gasPrice = await web3.eth.getGasPrice();
-  
+
         await usdtContract.methods
-        .transfer(empresaWalletAddress, amountInUSDT)
-        .send({
-          from: userAddress,
-          gas: increasedGasEstimate.toString(), 
-          gasPrice : gasPrice.toString()
-        })
+          .transfer(empresaWalletAddress, amountInUSDT)
+          .send({
+            from: userAddress,
+            gas: increasedGasEstimate.toString(),
+            gasPrice: gasPrice.toString()
+          })
           .on('receipt', (receipt) => {
             setAlertSeverity('success');
             setAlertMessage(`Transferencia completada. Hash de la transacción: ${receipt.transactionHash}`);
             setAlertOpen(true);
-  
-   
+
             sendEmail(nombre, dni, email, totalUSDT, totalConAdicional, receipt.transactionHash);
             resetForm();
             setOpen(false);
@@ -112,6 +110,7 @@ const PeerToPeer: React.FC = () => {
       setTransfering(false);
     }
   };
+
   const sendEmail = (nombre: string, dni: string, email: string, totalUSDT: string, totalConAdicional: string, transactionHash: string) => {
     const emailParams = {
       from_name: nombre,
@@ -137,7 +136,7 @@ const PeerToPeer: React.FC = () => {
   return (
     <>
       <Button variant="contained" onClick={() => setOpen(true)}>
-        Comprar AT3 300 y 500 (USDT)
+        Comprar AT3 (USDT)
       </Button>
       <Modal open={open} onClose={() => setOpen(false)}>
         <Box
@@ -178,15 +177,14 @@ const PeerToPeer: React.FC = () => {
             sx={{ mt: 2 }}
           />
 
-          <Select
+          <TextField
+            label="Cantidad de AT3"
             value={cantidadAT3}
             onChange={(e) => setCantidadAT3(Number(e.target.value))}
             fullWidth
+            type="number"
             sx={{ mt: 2 }}
-          >
-            <MenuItem value={300}>300 AT3</MenuItem>
-            <MenuItem value={500}>500 AT3</MenuItem>
-          </Select>
+          />
 
           <TextField
             label="Precio por AT3"
@@ -223,12 +221,12 @@ const PeerToPeer: React.FC = () => {
             sx={{ mt: 3, backgroundColor: '#4CAF50', color: '#fff' }}
             disabled={transfering}
           >
-            {transfering ? 'Transfiriendo USDT...' : 'Peer to Peer'}
+            {transfering ? 'Transfiriendo USDT...' : 'Comprar AT3'}
           </Button>
         </Box>
       </Modal>
 
-
+      {/* Modal de alerta para mostrar mensajes de éxito o error */}
       <AlertModal
         open={alertOpen}
         severity={alertSeverity}
@@ -239,4 +237,4 @@ const PeerToPeer: React.FC = () => {
   );
 };
 
-export default PeerToPeer;
+export default BuyAT3;
