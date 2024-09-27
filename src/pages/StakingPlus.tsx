@@ -16,15 +16,16 @@ const StakingPlus: React.FC = () => {
     emailConfirmation: '',
     phone: '',
     at3Amount: '',
+    quickswapHash: '', 
   });
 
   const [emailError, setEmailError] = useState<string | null>(null);
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState<string>('');
   const [alertSeverity, setAlertSeverity] = useState<'success' | 'error' | 'warning' | 'info'>('info');
-  const [imageModalOpen, setImageModalOpen] = useState(false); // Estado para controlar el modal de la imagen
+  const [imageModalOpen, setImageModalOpen] = useState(false); 
 
-  const navigate = useNavigate(); // Hook para navegación
+  const navigate = useNavigate(); 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -46,6 +47,13 @@ const StakingPlus: React.FC = () => {
       return;
     }
 
+    if (!formData.quickswapHash) {
+      setAlertSeverity('warning');
+      setAlertMessage('El campo "Hash Transacción de Compra AT3 en QuickSwap" es obligatorio.');
+      setAlertOpen(true);
+      return;
+    }
+
     setEmailError(null);
     const numeroSolicitud = `SP-${Date.now()}`;
     const dataToSend = {
@@ -53,6 +61,7 @@ const StakingPlus: React.FC = () => {
       purchaseDate: formatDate(formData.purchaseDate),
       solicitudNumber: numeroSolicitud,
     };
+
 
     emailjs.send('service_mn0qbtj', 'template_2q3nxeo', dataToSend, 'uJWGoBXmCBWYLpGfC')
       .then((response) => {
@@ -182,6 +191,20 @@ const StakingPlus: React.FC = () => {
                     margin="normal"
                   />
                 </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    label="Hash Compra en QuickSwap"
+                    name="quickswapHash"
+                    value={formData.quickswapHash}
+                    onChange={handleChange}
+                    fullWidth
+                    required
+                    margin="normal"
+                  />
+                </Grid>
+
+
                 <Grid item xs={12} md={6}>
                   <TextField
                     label="Fecha de Compra"
@@ -199,7 +222,7 @@ const StakingPlus: React.FC = () => {
                 </Grid>
                 <Grid item xs={12} md={6}>
                   <TextField
-                    label="Número de Transacción"
+                    label="Hash Staking"
                     name="transactionNumber"
                     value={formData.transactionNumber}
                     onChange={handleChange}
