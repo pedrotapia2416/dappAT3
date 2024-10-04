@@ -25,8 +25,7 @@ const GetStakeForm: React.FC = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const stakesPerPage = 5; 
-
-  const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS;
+  const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS_STAKING;
   const contractABI = JSON.parse(process.env.REACT_APP_CONTRACT_ABI || '[]');
 
   const handleGetStakes = async () => {

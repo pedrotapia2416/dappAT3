@@ -18,7 +18,7 @@ const StakeForm: React.FC = () => {
   const [alertSeverity, setAlertSeverity] = useState<'success' | 'error' | 'warning' | 'info'>('info');
   const [alertClosable, setAlertClosable] = useState(false);
 
-  const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS; 
+  const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS_STAKING; 
   const contractABI = JSON.parse(process.env.REACT_APP_CONTRACT_ABI || '[]'); 
   const tokenAddress = process.env.REACT_APP_CONTRACT_TOKEN; 
 

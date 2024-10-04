@@ -4,7 +4,7 @@ import { Typography, Box } from '@mui/material';
 
 const StakedBalance: React.FC<{ account: string | null }> = ({ account }) => {
   const [totalStaked, setTotalStaked] = useState('0'); // Guardar el total en stake
-  const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS;
+  const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS_STAKING;
   const contractABI = JSON.parse(process.env.REACT_APP_CONTRACT_ABI || '[]');
 
   // Obtener los stakes del usuario y sumar los montos

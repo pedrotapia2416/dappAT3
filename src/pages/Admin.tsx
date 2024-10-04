@@ -1,49 +1,39 @@
-import React, { useEffect, useState } from 'react';
-import Web3 from 'web3';
+// src/pages/Admin.tsx
+import React, { useState } from 'react';
+import { Container, Tabs, Tab, Box, Typography } from '@mui/material';
+import StakingInfo from '../components/Staking/StakingInfo';
+
 
 const Admin: React.FC = () => {
-  const [isOwner, setIsOwner] = useState(false);
+  const [selectedTab, setSelectedTab] = useState<number>(0); // Estado para controlar las pestañas
 
-  useEffect(() => {
-    const checkOwner = async () => {
-      try {
-        const web3 = new Web3(window.ethereum);
-
-        // Cargar variables de entorno
-        const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS;
-        const contractABI = JSON.parse(process.env.REACT_APP_CONTRACT_ABI || '[]');
-
-        if (!contractAddress || !contractABI) {
-          console.error('Missing contract address or ABI');
-          return;
-        }
-
-        const contract = new web3.eth.Contract(contractABI, contractAddress);
-
-        // Obtener cuentas y forzar que sea un array de strings
-        const accounts: string[] = (await web3.eth.getAccounts()) as string[];
-
-        if (accounts && accounts.length > 0) {
-          // Obtener el propietario del contrato
-          const owner: string = await contract.methods.owner().call();
-          
-          // Comparar la primera cuenta con el owner
-          setIsOwner(accounts[0] === owner);
-        } else {
-          console.error('No accounts found');
-        }
-      } catch (error) {
-        console.error('Error checking owner:', error);
-      }
-    };
-
-    checkOwner();
-  }, []);
+  const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
+    setSelectedTab(newValue);
+  };
 
   return (
-    <div>
-      {isOwner ? <div>Owner Panel: View all stakes, etc.</div> : <div>Access Denied</div>}
-    </div>
+    <Container sx={{marginTop:'20px'}} >
+      <Typography variant="h4" gutterBottom>
+        Admin Panel
+      </Typography>
+
+      {/* Tabs para las diferentes secciones */}
+      <Tabs sx={{background:'#fff', borderRadius:'8px'}}value={selectedTab} onChange={handleTabChange} aria-label="Admin Tabs">
+        <Tab label="Staking Info" />
+        {/* <Tab label="AT3 Info" />
+        <Tab label="Otra Sección 2" /> */}
+      </Tabs>
+
+      {/* Contenido de las pestañas */}
+      <Box sx={{background:'#fff', borderRadius:'8px', p:3}} mt={1}>
+        {selectedTab === 0 && <StakingInfo />}
+        {/* {selectedTab === 1 && <StakingInfo />} 
+        {selectedTab === 2 && <StakingInfo />}  */}
+
+        
+
+      </Box>
+    </Container>
   );
 };
 

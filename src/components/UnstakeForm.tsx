@@ -9,7 +9,7 @@ const UnstakeForm: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS;
+  const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS_STAKING;
   const contractABI = JSON.parse(process.env.REACT_APP_CONTRACT_ABI || '[]');
   const tokenAddress = process.env.REACT_APP_CONTRACT_TOKEN;  
 
