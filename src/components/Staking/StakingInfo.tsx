@@ -1,6 +1,21 @@
-// src/components/StakingInfo.tsx
 import React, { useEffect, useState } from 'react';
-import { Box, CircularProgress, Table, TableBody, TableCell, TableHead, TableRow, Pagination, TextField, Typography } from '@mui/material';
+import {
+  Box,
+  CircularProgress,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Pagination,
+  TextField,
+  Typography,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+  SelectChangeEvent,
+} from '@mui/material';
 import polygonScanService from '../../services/polygonScanService';
 
 interface ERC20Transfer {
@@ -24,7 +39,9 @@ const StakingInfo: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [searchAddress, setSearchAddress] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const transfersPerPage = 5;
+  const [transfersPerPage, setTransfersPerPage] = useState<number>(5);
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
 
   useEffect(() => {
     const fetchERC20Transfers = async () => {
@@ -87,9 +104,32 @@ const StakingInfo: React.FC = () => {
     setCurrentPage(1);
   };
 
-  const filteredTransfers = transfers.filter(transfer =>
-    transfer.from.toLowerCase().includes(searchAddress)
-  );
+  const handleTransfersPerPageChange = (event: SelectChangeEvent<number>) => {
+    setTransfersPerPage(Number(event.target.value));
+    setCurrentPage(1);
+  };
+
+  const handleStartDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setStartDate(event.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleEndDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEndDate(event.target.value);
+    setCurrentPage(1);
+  };
+
+  const filteredTransfers = transfers.filter(transfer => {
+    const transferDate = new Date(parseInt(transfer.timeStamp) * 1000);
+    const isAfterStartDate = startDate ? transferDate >= new Date(startDate) : true;
+    const isBeforeEndDate = endDate ? transferDate <= new Date(endDate) : true;
+
+    return (
+      transfer.from.toLowerCase().includes(searchAddress) &&
+      isAfterStartDate &&
+      isBeforeEndDate
+    );
+  });
 
   const totalStakedTokens = filteredTransfers.reduce((total, transfer) => {
     const stakes = stakingInfo[transfer.from] || [];
@@ -99,19 +139,67 @@ const StakingInfo: React.FC = () => {
 
   const indexOfLastTransfer = currentPage * transfersPerPage;
   const indexOfFirstTransfer = indexOfLastTransfer - transfersPerPage;
-  const currentTransfers = filteredTransfers.slice(indexOfFirstTransfer, indexOfFirstTransfer + transfersPerPage);
+  const currentTransfers = filteredTransfers.slice(indexOfFirstTransfer, indexOfLastTransfer);
 
   return (
     <Box>
       <TextField
         label="Buscar por dirección"
         variant="outlined"
-        fullWidth
+        
         margin="normal"
         value={searchAddress}
         onChange={handleSearchChange}
         placeholder="Introduce una dirección para buscar"
+        sx={{width:'100%'}}
       />
+
+      <TextField
+        label="Desde"
+        type="date"
+        InputLabelProps={{
+          shrink: true,
+        }}
+        
+        margin="normal"
+        value={startDate}
+        onChange={handleStartDateChange}
+        sx={{width:'30%', p:2}}
+      />
+
+      <TextField
+        label="Hasta"
+        type="date"
+        InputLabelProps={{
+          shrink: true,
+        }}
+        sx={{width:'30%', p:2}}
+        
+        margin="normal"
+        value={endDate}
+        onChange={handleEndDateChange}
+      />
+
+      <FormControl  margin="normal"
+        sx={{width:'10%', p:2}}
+
+      >
+        <InputLabel id="transfers-per-page-label">Registros por página</InputLabel>
+        <Select
+          labelId="transfers-per-page-label"
+          id="transfers-per-page"
+          value={transfersPerPage}
+          onChange={handleTransfersPerPageChange}
+        >
+          <MenuItem value={5}>5</MenuItem>
+          <MenuItem value={10}>10</MenuItem>
+          <MenuItem value={20}>20</MenuItem>
+          <MenuItem value={50}>50</MenuItem>
+          <MenuItem value={100}>100</MenuItem>
+
+
+        </Select>
+      </FormControl>
 
       <Typography variant="h6">
         Total de tokens en stake: {totalStakedTokens.toFixed(4)} AT3
@@ -170,7 +258,7 @@ const StakingInfo: React.FC = () => {
               ) : (
                 <TableRow>
                   <TableCell colSpan={9} align="center">
-                    No ERC20 transfers found.
+                    No se encontraron transferencias ERC20.
                   </TableCell>
                 </TableRow>
               )}
@@ -191,3 +279,4 @@ const StakingInfo: React.FC = () => {
 };
 
 export default StakingInfo;
+
