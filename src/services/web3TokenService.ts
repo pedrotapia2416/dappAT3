@@ -1,4 +1,3 @@
-// src/services/web3TokenService.ts
 import Web3 from 'web3';
 
 const CONTRACT_ADDRESS = '0x22a79a08ddb74a9f1a4ebe5da75300ad9f1aed76';
@@ -52,13 +51,11 @@ const web3TokenService = {
       const symbol = await contract.methods.symbol().call();
       const decimals = Number(await contract.methods.decimals().call());
       
-      // Verificar que totalSupplyRaw no sea vacío o nulo
       const totalSupplyRaw = await contract.methods.totalSupply().call();
       if (!totalSupplyRaw || Array.isArray(totalSupplyRaw) || typeof totalSupplyRaw !== 'string') {
         throw new Error('Valor inesperado para totalSupply.');
       }
 
-      // Convertir totalSupplyRaw a número y aplicar decimales
       const totalSupply = (parseFloat(totalSupplyRaw) / 10 ** decimals).toFixed(2);
 
       return { name, symbol, decimals, totalSupply };

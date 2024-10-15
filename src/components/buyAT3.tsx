@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Button, Modal, Typography, TextField, Switch, FormControlLabel, Grid } from '@mui/material';
+import { Box, Button, Modal, Typography, TextField, Switch, FormControlLabel, Grid, FormGroup, Checkbox, Stepper, Step, StepLabel } from '@mui/material';
 import Web3 from 'web3';
 import AlertModal from './AlertModal';
 import emailjs from 'emailjs-com';
@@ -11,12 +11,27 @@ const BuyAT3: React.FC = () => {
   const [nombre, setNombre] = useState('');
   const [dni, setDni] = useState('');
   const [email, setEmail] = useState('');
+  const [pais, setPais] = useState('');
+  const [telefono, setTelefono] = useState('');
+  const [profesion, setProfesion] = useState('');
+  const [direccion, setDireccion] = useState('');
+  const [dataConsent, setDataConsent] = useState(false);
+  const [politicallyExposed, setPoliticallyExposed] = useState(false);
+  const [uifObligated, setUifObligated] = useState(false);
+
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertSeverity, setAlertSeverity] = useState<'success' | 'error' | 'warning' | 'info'>('info');
   const [transfering, setTransfering] = useState(false);
   const [isAT3Mode, setIsAT3Mode] = useState(true); 
+  const [activeStep, setActiveStep] = useState(0);
+  const steps = ['Inversión/Compra', 'Datos Personales', 'Consentimientos'];
 
+  const handleNext = () => setActiveStep((prev) => prev + 1);
+  const handleBack = () => setActiveStep((prev) => prev - 1);
+
+
+  
   const precioPorAT3 = 0.85;
 
   const totalUSDT = isAT3Mode
@@ -95,14 +110,28 @@ const BuyAT3: React.FC = () => {
             setAlertMessage(`Transferencia completada. Hash de la transacción: ${receipt.transactionHash}`);
             setAlertOpen(true);
 
-            sendEmail(nombre, dni, email, totalUSDT, totalConAdicional, receipt.transactionHash);
+            sendEmail(
+              nombre,
+              dni,
+              email,
+              pais,
+              telefono,
+              profesion,
+              direccion,
+              totalUSDT,
+              totalConAdicional,
+              receipt.transactionHash,
+              politicallyExposed,
+              uifObligated
+            );
             resetForm();
             setOpen(false);
           })
           .on('error', (error) => {
             console.error('Error en la transferencia:', error);
+            const errorMessage = extractErrorMessage(error);
             setAlertSeverity('error');
-            setAlertMessage('Error en la transferencia. Inténtalo de nuevo.');
+            setAlertMessage(`Error: ${errorMessage}`);
             setAlertOpen(true);
           });
       } else {
@@ -112,22 +141,42 @@ const BuyAT3: React.FC = () => {
       }
     } catch (error) {
       console.error('Error en la transferencia:', error);
+      const errorMessage = extractErrorMessage(error);
       setAlertSeverity('error');
-      setAlertMessage('Error inesperado. Inténtalo de nuevo.');
+      setAlertMessage(`Error inesperado: ${errorMessage}`);
       setAlertOpen(true);
     } finally {
       setTransfering(false);
     }
   };
 
-  const sendEmail = (nombre: string, dni: string, email: string, totalUSDT: string, totalConAdicional: string, transactionHash: string) => {
+  const sendEmail = (
+    nombre: string,
+    dni: string,
+    email: string,
+    pais: string,
+    telefono: string,
+    profesion: string,
+    direccion: string,
+    totalUSDT: string,
+    totalConAdicional: string,
+    transactionHash: string,
+    politicallyExposed: boolean,
+    uifObligated: boolean
+  ) => {
     const emailParams = {
       from_name: nombre,
-      dni: dni,
-      email: email,
+      dni,
+      email,
+      pais,
+      telefono,
+      profesion,
+      direccion,
       total_usdt: totalUSDT,
       total_con_adicional: totalConAdicional,
       transaction_hash: transactionHash,
+      politically_exposed: politicallyExposed ? 'Sí' : 'No',
+      uif_obligated: uifObligated ? 'Sí' : 'No',
     };
 
     emailjs.send(
@@ -142,121 +191,106 @@ const BuyAT3: React.FC = () => {
     });
   };
 
+  const extractErrorMessage = (error: any): string => {
+    if (error?.data?.message) {
+      return error.data.message;
+    }
+    if (error?.message) {
+      return error.message;
+    }
+    return 'Error desconocido. Revisa la consola para más detalles.';
+  };
+
   return (
     <>
       <Button variant="contained" onClick={() => setOpen(true)}>
         Peer to Peer
       </Button>
       <Modal open={open} onClose={() => setOpen(false)}>
-        <Box
-          sx={{
-            p: 4,
-            backgroundColor: 'white',
-            borderRadius: '8px',
-            maxWidth: '800px', // Aumentamos el ancho para permitir dos columnas
-            margin: 'auto',
-            mt: '50px',
-            textAlign: 'center',
-          }}
-        >
-          <Typography variant="h6">Peer to Peer</Typography>
-          <FormControlLabel
-                control={
-                  <Switch
-                    checked={isAT3Mode}
-                    onChange={() => setIsAT3Mode(!isAT3Mode)}
-                  />
-                }
-                label={isAT3Mode ? "Comprar AT3" : "Invertir USDT"}
-                sx={{ mb: 2, mt: 2 }}
-              />
-          <Grid container spacing={3} >
-            {/* Columna izquierda: Datos personales */}
-            <Grid item xs={12} md={6} >
-              <TextField
-                label="Nombre y Apellido"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-                fullWidth
-                required
-                sx={{ mt: 2 }}
-              />
-              <TextField
-                label="DNI"
-                value={dni}
-                onChange={(e) => setDni(e.target.value)}
-                fullWidth
-                required
-                sx={{ mt: 2 }}
-              />
-              <TextField
-                label="Correo Electrónico"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                fullWidth
-                required
-                sx={{ mt: 2 }}
-              />
-            </Grid>
+        <Box sx={{ p: 4, backgroundColor: 'white', borderRadius: '8px', maxWidth: '800px', margin: 'auto', mt: 5 }}>
+          <Stepper activeStep={activeStep} alternativeLabel>
+            {steps.map((label) => (
+              <Step key={label}>
+                <StepLabel>{label}</StepLabel>
+              </Step>
+            ))}
+          </Stepper>
 
-            {/* Columna derecha: Datos de la compra */}
-            <Grid item xs={12} md={6}>
-              
-
-              <TextField
-                label={isAT3Mode ? "Cantidad de AT3" : "Monto en USDT"}
-                value={isAT3Mode ? cantidadAT3 : montoUSDT}
-                onChange={(e) => {
-                  if (isAT3Mode) {
-                    setCantidadAT3(Number(e.target.value));
-                  } else {
-                    setMontoUSDT(Number(e.target.value));
+          {activeStep === 0 && (
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={isAT3Mode}
+                      onChange={() => setIsAT3Mode(!isAT3Mode)}
+                    />
                   }
-                }}
-                fullWidth
-                type="number"
-                sx={{ mt: 2 }}
-              />
-
-              <TextField
-                label="Precio por AT3"
-                value={`$${precioPorAT3} USDT`}
-                fullWidth
-                InputProps={{
-                  readOnly: true,
-                }}
-                sx={{ mt: 2 }}
-              />
-              <TextField
-                label="Total"
-                value={`$${totalUSDT} USDT`}
-                fullWidth
-                InputProps={{
-                  readOnly: true,
-                }}
-                sx={{ mt: 2 }}
-              />
-              <TextField
-                label="Vas a recibir: ( + Plus del 75%)"
-                value={`${totalConAdicional} AT3`}
-                fullWidth
-                InputProps={{
-                  readOnly: true,
-                }}
-                sx={{ mt: 2 }}
-              />
+                  sx={{m:2}}
+                  label={isAT3Mode ? 'Comprar AT3' : 'Invertir USDT'}
+                />
+                <TextField
+                 sx={{m:2}}
+                  label={isAT3Mode ? 'Cantidad de AT3' : 'Monto en USDT'}
+                  value={isAT3Mode ? cantidadAT3 : montoUSDT}
+                  onChange={(e) =>
+                    isAT3Mode
+                      ? setCantidadAT3(Number(e.target.value))
+                      : setMontoUSDT(Number(e.target.value))
+                  }
+                  fullWidth
+                  type="number"
+                />
+                <TextField label="Precio por AT3" sx={{m:2}} value={`$${precioPorAT3} USDT`} fullWidth InputProps={{ readOnly: true }} />
+                <TextField label="Total"  sx={{m:2}} value={`$${totalUSDT} USDT`} fullWidth InputProps={{ readOnly: true }} />
+                <TextField label="Vas a recibir (con 75% adicional)"  sx={{m:2}} value={`${totalConAdicional} AT3`} fullWidth InputProps={{ readOnly: true }} />
+              </Grid>
             </Grid>
-          </Grid>
+          )}
 
-          {/* Botón para iniciar la transferencia */}
-          <Button
-            variant="contained"
-            onClick={handleTransfer}
-            sx={{ mt: 3, backgroundColor: '#4CAF50', color: '#fff' }}
-            disabled={transfering}
-          >
-            {transfering ? 'Transfiriendo USDT...' : 'Comprar AT3'}
-          </Button>
+          {activeStep === 1 && (
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <TextField label="Nombre" sx={{m:2}} value={nombre} onChange={(e) => setNombre(e.target.value)} fullWidth />
+                <TextField label="DNI"  sx={{m:2}} value={dni} onChange={(e) => setDni(e.target.value)} fullWidth />
+                <TextField label="Correo Electrónico"  sx={{m:2}} value={email} onChange={(e) => setEmail(e.target.value)} fullWidth />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField label="País"  sx={{m:2}} value={pais} onChange={(e) => setPais(e.target.value)} fullWidth />
+                <TextField label="Teléfono"  sx={{m:2}} value={telefono} onChange={(e) => setTelefono(e.target.value)} fullWidth />
+                <TextField label="Profesión"  sx={{m:2}} value={profesion} onChange={(e) => setProfesion(e.target.value)} fullWidth />
+                <TextField label="Dirección Fiscal"  sx={{m:2}} value={direccion} onChange={(e) => setDireccion(e.target.value)} fullWidth />
+              </Grid>
+            </Grid>
+          )}
+
+          {activeStep === 2 && (
+            <FormGroup  sx={{mt:5}}>
+              <FormControlLabel
+                control={<Checkbox checked={dataConsent} onChange={(e) => setDataConsent(e.target.checked)} />}
+                label="Acepto que los datos son fieles y no he omitido información relevante."
+              />
+              <FormControlLabel
+                control={<Checkbox checked={politicallyExposed} onChange={(e) => setPoliticallyExposed(e.target.checked)} />}
+                label="Soy persona políticamente expuesta."
+              />
+              <FormControlLabel
+                control={<Checkbox checked={uifObligated} onChange={(e) => setUifObligated(e.target.checked)} />}
+                label="Estoy obligado ante la UIF."
+              />
+            </FormGroup>
+          )}
+
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
+            <Button onClick={handleBack} disabled={activeStep === 0}>Atrás</Button>
+            {activeStep === steps.length - 1 ? (
+              <Button variant="contained" onClick={handleTransfer} disabled={transfering}>
+                {transfering ? 'Transfiriendo...' : 'Finalizar'}
+              </Button>
+            ) : (
+              <Button variant="contained" onClick={handleNext}>Siguiente</Button>
+            )}
+          </Box>
         </Box>
       </Modal>
 

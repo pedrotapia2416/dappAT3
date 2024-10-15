@@ -1,15 +1,25 @@
 import React, { useState } from 'react';
-import { Tooltip, IconButton, Button, TextField, Modal, Box, MenuItem, Select } from '@mui/material';
+import { Tooltip, IconButton, Button, TextField, Modal, Box, MenuItem, Select, FormGroup, FormControlLabel, Checkbox, Grid, Stepper, Step, StepLabel } from '@mui/material';
 import Web3 from 'web3';
 import AlertModal from './AlertModal'; 
 import emailjs from 'emailjs-com';
 
 const StakeForm: React.FC = () => {
   const [amount, setAmount] = useState('');
-  const [days, setDays] = useState(60); 
+  const [days, setDays] = useState(60);
   const [name, setName] = useState('');
+  const [lastName, setLastName] = useState(''); 
   const [email, setEmail] = useState('');
   const [document, setDocument] = useState('');
+  const [country, setCountry] = useState('');
+  const [state, setState] = useState('');
+  const [address, setAddress] = useState('');
+  const [addressFiscal, setAddressFiscal] = useState('');
+  const [phone, setPhone] = useState('');
+  const [profession, setProfession] = useState('');
+  const [dataConsent, setDataConsent] = useState(false);
+  const [politicallyExposed, setPoliticallyExposed] = useState(false);
+  const [uifObligated, setUifObligated] = useState(false);
   const [open, setOpen] = useState(false);
   const [approving, setApproving] = useState(false);
 
@@ -21,13 +31,29 @@ const StakeForm: React.FC = () => {
   const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS_STAKING; 
   const contractABI = JSON.parse(process.env.REACT_APP_CONTRACT_ABI || '[]'); 
   const tokenAddress = process.env.REACT_APP_CONTRACT_TOKEN; 
+  
+  const [activeStep, setActiveStep] = useState(0);
+  const steps = ['Cantidad y Días', 'Datos Personales', 'Consentimientos'];
+
+    const handleNext = () => setActiveStep((prev) => prev + 1);
+    const handleBack = () => setActiveStep((prev) => prev - 1);
+
 
   const resetForm = () => {
     setAmount('');
-    setDays(60); 
+    setDays(60);
     setName('');
     setEmail('');
     setDocument('');
+    setCountry('');
+    setState('');
+    setAddress('');
+    setAddressFiscal('');
+    setPhone('');
+    setProfession('');
+    setDataConsent(false);
+    setPoliticallyExposed(false);
+    setUifObligated(false);
   };
 
   const handleTransaction = async () => {
@@ -87,8 +113,6 @@ const StakeForm: React.FC = () => {
             setAlertMessage("Operación Validada.\nRealizando staking... .\nConfirmar la operación en Metamask");
             setAlertOpen(true);
             setAlertClosable(false);
-
-            // Ahora realizamos el staking
             await handleStake(userAddress, amountInWei, increasedGasPrice);
           })
           .on('error', (error) => {
@@ -141,7 +165,7 @@ const StakeForm: React.FC = () => {
           setOpen(false);
           resetForm();
           setApproving(false);
-          sendEmail(transactionHash);
+          sendEmail(transactionHash, userAddress);
         })
         .on('error', (error) => {
           console.error("Error realizando staking:", error);
@@ -161,14 +185,23 @@ const StakeForm: React.FC = () => {
     }
   };
 
-   const sendEmail = (transactionHash: string) => {
+   const sendEmail = (transactionHash: string,  userAddress: string) => {
     const dataStaking = {
-      name: name,
-      email: email,
-      amount: amount,
-      days: days,
-      document: document,
-      transactionHash: transactionHash
+      name,
+      email,
+      amount,
+      days,
+      document,
+      country,
+      state,
+      address,
+      addressFiscal,
+      phone,
+      profession,
+      politicallyExposed,
+      uifObligated,
+      transactionHash,
+      userAddress,
     };
 
     emailjs.send('service_mn0qbtj', 'template_s7tm63d', dataStaking, 'uJWGoBXmCBWYLpGfC')
@@ -197,79 +230,88 @@ const StakeForm: React.FC = () => {
         Stake Tokens
       </Button>
 
-      <Modal
-        open={open}
-        onClose={(event, reason) => {
-          if (reason !== 'backdropClick') {
-            setOpen(false);
-            resetForm();
-          }
-        }}
-        disableEscapeKeyDown
-      >
-        <Box sx={{ p: 4, backgroundColor: 'white', borderRadius: '8px', maxWidth: '400px', margin: 'auto', mt: 5 }}>
-          <TextField
-            label="Cantidad de AT3"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            fullWidth
-            margin="normal"
-          />
-          <Select
-            label="Días de Staking"
-            value={days}
-            onChange={(e) => setDays(Number(e.target.value))}
-            fullWidth
-          >
-            <MenuItem value={60}>60 días - 19% recompensa</MenuItem>
-            <MenuItem value={180}>180 días - 14% recompensa</MenuItem>
-            <MenuItem value={240}>240 días - 10% recompensa</MenuItem>
-          </Select>
-          <TextField
-            label="Nombre"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Correo Electrónico"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Documento de Identificación"
-            value={document}
-            onChange={(e) => setDocument(e.target.value)}
-            fullWidth
-            margin="normal"
-          />
+      <Modal open={open} onClose={() => setOpen(false)} disableEscapeKeyDown>
+        <Box sx={{ p: 4, backgroundColor: 'white', borderRadius: '8px', maxWidth: '700px', margin: 'auto', mt: 15 }}>
+          <Stepper activeStep={activeStep} alternativeLabel>
+            {steps.map((label) => (
+              <Step key={label}>
+                <StepLabel>{label}</StepLabel>
+              </Step>
+            ))}
+          </Stepper>
 
-          <Button variant="contained" onClick={handleTransaction} sx={{ mt: 2 }} disabled={approving}>
-            {approving ? 'Procesando...' : 'Staking'}
-          </Button>
+          {activeStep === 0 && (
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <TextField
+                  label="Cantidad de AT3"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  fullWidth margin="normal"
+                />
+                <Select value={days} onChange={(e) => setDays(Number(e.target.value))} fullWidth >
+                  <MenuItem value={60}>60 días - 19% recompensa</MenuItem>
+                  <MenuItem value={180}>180 días - 14% recompensa</MenuItem>
+                  <MenuItem value={240}>240 días - 10% recompensa</MenuItem>
+                </Select>
+              </Grid>
+            </Grid>
+          )}
 
-          <Button
-            variant="text"
-            sx={{ mt: 2, ml: 15 }}
-            onClick={() => {
-              setOpen(false);
-              resetForm();
-            }}
-          >
-            Cerrar
-          </Button>
+          {activeStep === 1 && (
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <TextField label="Nombre" value={name} onChange={(e) => setName(e.target.value)} fullWidth margin="normal" />
+                <TextField label="Apellido" value={lastName} onChange={e => setLastName(e.target.value)} fullWidth />
+                <TextField label="Correo Electrónico" value={email} onChange={(e) => setEmail(e.target.value)} fullWidth margin="normal" />
+                <TextField label="Documento" value={document} onChange={(e) => setDocument(e.target.value)} fullWidth margin="normal" />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField label="País" value={country} onChange={(e) => setCountry(e.target.value)} fullWidth margin="normal" />
+                <TextField label="Domicilio Fiscal" value={addressFiscal} onChange={e => setAddressFiscal(e.target.value)} fullWidth />
+                <TextField label="Teléfono" value={phone} onChange={(e) => setPhone(e.target.value)} fullWidth margin="normal" />
+                <TextField label="Profesión" value={profession} onChange={(e) => setProfession(e.target.value)} fullWidth margin="normal" />
+              </Grid>
+            </Grid>
+          )}
+
+          {activeStep === 2 && (
+            <FormGroup>
+              <FormControlLabel
+                control={<Checkbox checked={dataConsent} onChange={(e) => setDataConsent(e.target.checked)} />}
+                label="Acepto que los datos son fieles y no he omitido información relevante."
+              />
+              <FormControlLabel
+                control={<Checkbox checked={politicallyExposed} onChange={(e) => setPoliticallyExposed(e.target.checked)} />}
+                label="Soy persona políticamente expuesta."
+              />
+              <FormControlLabel
+                control={<Checkbox checked={uifObligated} onChange={(e) => setUifObligated(e.target.checked)} />}
+                label="Estoy obligado ante la UIF."
+              />
+            </FormGroup>
+          )}
+
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+            <Button onClick={handleBack} disabled={activeStep === 0}>Atrás</Button>
+            {activeStep === steps.length - 1 ? (
+              <Button variant="contained" onClick={handleTransaction} disabled={approving}>
+                {approving ? 'Procesando...' : 'Staking'}
+              </Button>
+            ) : (
+              <Button variant="contained" onClick={handleNext}>Siguiente</Button>
+            )}
+          </Box>
         </Box>
       </Modal>
+
 
       <AlertModal
         open={alertOpen}
         severity={alertSeverity}
         message={alertMessage}
-        onClose={() => setAlertOpen(false)} // Cerrar el modal al hacer clic en "Cerrar"
-        disableEscapeKeyDown={!alertClosable} // Controlar si se permite o no el cierre con Escape
+        onClose={() => setAlertOpen(false)} 
+        disableEscapeKeyDown={!alertClosable} 
       />
 
     </>

@@ -1,11 +1,10 @@
-// src/pages/Admin.tsx
 import React, { useState } from 'react';
 import { Container, Tabs, Tab, Box, Typography } from '@mui/material';
 import StakingInfo from '../components/Staking/StakingInfo';
 
 
 const Admin: React.FC = () => {
-  const [selectedTab, setSelectedTab] = useState<number>(0); // Estado para controlar las pestañas
+  const [selectedTab, setSelectedTab] = useState<number>(0);
 
   const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setSelectedTab(newValue);
@@ -17,7 +16,6 @@ const Admin: React.FC = () => {
         Admin Panel
       </Typography>
 
-      {/* Tabs para las diferentes secciones */}
       <Tabs sx={{background:'#fff', borderRadius:'8px'}}value={selectedTab} onChange={handleTabChange} aria-label="Admin Tabs">
         <Tab label="Staking Info" />
         {/* <Tab label="AT3 Info" />

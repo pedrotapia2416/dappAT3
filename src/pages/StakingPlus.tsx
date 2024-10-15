@@ -139,12 +139,11 @@ const StakingPlus: React.FC = () => {
                 borderRadius: '20px',
                 cursor: 'pointer',
               }}
-              onClick={openImageModal} // Abrir el modal cuando se hace clic
+              onClick={openImageModal} 
             />
           </Box>
         </Grid>
 
-        {/* Columna derecha con el formulario */}
         <Grid item xs={12} md={6}>
           <Box
             sx={{
@@ -299,7 +298,6 @@ const StakingPlus: React.FC = () => {
         </Grid>
       </Grid>
 
-      {/* Modal de imagen en pantalla completa */}
       <Modal open={imageModalOpen} onClose={closeImageModal}>
         <Box
           sx={{

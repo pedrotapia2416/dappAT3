@@ -1,4 +1,3 @@
-// src/services/polygonTokenService.ts
 import axios from 'axios';
 
 const POLYGONSCAN_API_KEY = process.env.REACT_APP_POLYGONSCAN_API_KEY;

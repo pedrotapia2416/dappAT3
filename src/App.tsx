@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ThemeProvider, CssBaseline, Box, Typography, Button, Alert, AlertTitle, IconButton } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
-import { isMobile } from 'react-device-detect'; // Para detectar si es un móvil
+import { isMobile } from 'react-device-detect'; 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import theme from './theme';
 import Home from './pages/Home';
@@ -12,14 +12,12 @@ import { GlobalStyles } from '@mui/material';
 import StakingPlus from './pages/StakingPlus';
 
 const App: React.FC = () => {
-  // Estado centralizado para la cuenta de la wallet
   const [account, setAccount] = useState<string | null>(null);
-  const [showMobileWarning, setShowMobileWarning] = useState(false); // Estado para mostrar el aviso
+  const [showMobileWarning, setShowMobileWarning] = useState(false);
 
-  // Detectar si es un dispositivo móvil y mostrar el aviso
   useEffect(() => {
     if (isMobile) {
-      setShowMobileWarning(true); // Mostrar aviso si es móvil
+      setShowMobileWarning(true);
     }
   }, []);
 
@@ -38,10 +36,8 @@ const App: React.FC = () => {
         }}
       />
       <Router>
-        {/* Pasar el estado y el setter al Header */}
         <Header account={account} setAccount={setAccount} />
 
-        {/* Mostrar advertencia si es un dispositivo móvil */}
         {showMobileWarning && (
           <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', mt: 2 }}>
             <Alert 
@@ -99,7 +95,6 @@ const App: React.FC = () => {
         )}
 
         <Routes>
-          {/* Pasar el estado y el setter al Home */}
           <Route path="/stakingplus" element={<StakingPlus />} /> 
           <Route path="/" element={<Home account={account} setAccount={setAccount} />} />
           <Route path="/admin" element={<Admin />} />

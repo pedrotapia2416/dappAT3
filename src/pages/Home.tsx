@@ -44,7 +44,6 @@ const Home: React.FC<HomeProps> = ({ account, setAccount }) => {
         },
       }}
     >
-      {/* Lado izquierdo: Imagen/logo */}
       <Box
         sx={{
           flex: 1,
@@ -66,7 +65,6 @@ const Home: React.FC<HomeProps> = ({ account, setAccount }) => {
         />
       </Box>
 
-      {/* Lado derecho: Contenido */}
       <Box
         sx={{
           flex: 1,
