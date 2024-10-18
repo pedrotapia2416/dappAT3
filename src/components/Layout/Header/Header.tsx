@@ -5,10 +5,10 @@ import WalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import LockIcon from '@mui/icons-material/Lock'; 
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney'; 
 import Web3 from 'web3';
-import AT3Balance from './AT3Balance';
-import StakedBalance from './StakedBalance';
-import AT3ToUSDTPrice from './MarketPrice';
-import AlertModal from './AlertModal'; 
+import AT3Balance from '../../Commerce/AT3Balance';
+import StakedBalance from '../../Staking/StakedBalance';
+import AT3ToUSDTPrice from '../../Commerce/MarketPrice';
+import AlertModal from '../../AlertModal'; 
 import LogoutIcon from '@mui/icons-material/Logout';
 
 interface HeaderProps {

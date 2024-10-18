@@ -1,13 +1,13 @@
 import React from 'react';
 import { Box, Button } from '@mui/material';
-import ConnectWallet from '../components/ConnectWallet';
-import StakeForm from '../components/StakeForm';
-import UnstakeForm from '../components/UnstakeForm';
-import GetStakeForm from '../components/GetStakeForm';
-import PeerToPeer from '../components/peertopeer';
-import linesImage from '../assets/images/lineas.png';
-import logo from '../assets/images/logo.png';
-import BuyAT3 from '../components/buyAT3';
+import ConnectWallet from '../../components/ConnectWallet';
+import StakeForm from '../../components/Staking/StakeForm';
+import UnstakeForm from '../../components/Staking/UnstakeForm';
+import linesImage from '../../assets/images/lineas.png';
+import logo from '../../assets/images/logo.png';
+import BuyAT3 from '../../components/Commerce/buyAT3';
+import PeerToPeer from '../../components/Commerce/peertopeer';
+import GetStakeForm from '../../components/Staking/GetStakeForm';
 
 interface HomeProps {
   account: string | null;

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, TextField, Modal, Box, Typography, Table, TableHead, TableRow, TableCell, TableBody, CircularProgress, Pagination } from '@mui/material';
 import Web3 from 'web3';
-import AlertModal from './AlertModal'; 
+import AlertModal from '../AlertModal'; 
 
 type Stake = {
   amount: string;

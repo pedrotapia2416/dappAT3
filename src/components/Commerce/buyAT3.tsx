@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Button, Modal, Typography, TextField, Switch, FormControlLabel, Grid, FormGroup, Checkbox, Stepper, Step, StepLabel } from '@mui/material';
 import Web3 from 'web3';
-import AlertModal from './AlertModal';
+import AlertModal from '../AlertModal';
 import emailjs from 'emailjs-com';
 
 const BuyAT3: React.FC = () => {

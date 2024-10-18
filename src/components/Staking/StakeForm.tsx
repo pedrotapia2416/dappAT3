@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Tooltip, IconButton, Button, TextField, Modal, Box, MenuItem, Select, FormGroup, FormControlLabel, Checkbox, Grid, Stepper, Step, StepLabel } from '@mui/material';
 import Web3 from 'web3';
-import AlertModal from './AlertModal'; 
+import AlertModal from '../AlertModal'; 
 import emailjs from 'emailjs-com';
 
 const StakeForm: React.FC = () => {

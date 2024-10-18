@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Tabs, Tab, Box, Typography } from '@mui/material';
-import StakingInfo from '../components/Staking/StakingInfo';
+import StakingInfo from '../../components/Staking/StakingInfo';
 
 
 const Admin: React.FC = () => {

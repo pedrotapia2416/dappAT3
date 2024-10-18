@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Box, TextField, Button, Typography, Grid, Modal } from '@mui/material';
 import emailjs from 'emailjs-com';
-import AlertModal from '../components/AlertModal';
-import stakingImage from '../assets/images/staking.jpeg';
-import linesImage from '../assets/images/lineas.png';
+import AlertModal from '../../components/AlertModal';
+import stakingImage from '../../assets/images/staking.jpeg';
+import linesImage from '../../assets/images/lineas.png';
 import { useNavigate } from 'react-router-dom';
 
 const StakingPlus: React.FC = () => {

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Box, Button, Modal, Typography, MenuItem, Select, TextField } from '@mui/material';
 import Web3 from 'web3';
-import AlertModal from './AlertModal';
 import emailjs from 'emailjs-com';
+import AlertModal from '../AlertModal';
 
 const PeerToPeer: React.FC = () => {
   const [open, setOpen] = useState(false);
